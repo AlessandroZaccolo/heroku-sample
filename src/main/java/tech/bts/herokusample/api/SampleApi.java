@@ -20,7 +20,6 @@ public class SampleApi {
     private final MongoCollection<Document> words;
     
     public SampleApi(@Value("${mongoUri}") String mongoUri){
-        //MongoClient mongoClient = MongoClients.create("mongodb+srv://alessandrozaccolo:Bts!2018@test-yzmvr.mongodb.net/test?retryWrites=true");
         MongoClient mongoClient = MongoClients.create(mongoUri);
         MongoDatabase database = mongoClient.getDatabase("test");
         this.words = database.getCollection("words");
@@ -34,11 +33,13 @@ public class SampleApi {
     }
 
     @GetMapping("/insert")
-    public void insertWord(@RequestParam String word){
+    public String insertWord(@RequestParam String word){
 
         Document appDoc = new Document().append("word", word).append("date", new Date());
 
         words.insertOne(appDoc);
+
+        return word;
 
     }
 }
