@@ -10,7 +10,9 @@ import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @RestController
@@ -33,7 +35,7 @@ public class SampleApi {
     }
 
     @GetMapping("/insert")
-    public String insertWord(@RequestParam String word){
+    public Object insertWord(@RequestParam String word){
 
         Document appDoc = new Document().append("word", word).append("date", new Date());
 
@@ -41,5 +43,16 @@ public class SampleApi {
 
         return word;
 
+    }
+
+    @GetMapping("/list")
+    public List<Object> listWords(){
+
+        List<Object> result = new ArrayList<>();
+
+        for (Document docApp : words.find()){
+            result.add(docApp.get("word"));
+        }
+        return result;
     }
 }
