@@ -1,12 +1,11 @@
 package tech.bts.herokusample.api;
 
-
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,45 +13,48 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 @RestController
 @RequestMapping(path = "/api")
 public class SampleApi {
 
-    private final MongoCollection<Document> words;
-    
-    public SampleApi(@Value("${mongoUri}") String mongoUri){
-        MongoClient mongoClient = MongoClients.create(mongoUri);
-        MongoDatabase database = mongoClient.getDatabase("test");
-        this.words = database.getCollection("words");
+    private MongoCollection<Document> words;
 
+    @Autowired
+    public SampleApi(@Value("${mongoUri}") String mongoUri) {
+
+        final MongoClient mongoClient = MongoClients.create(mongoUri);
+        final MongoDatabase database = mongoClient.getDatabase("test");
+        this.words = database.getCollection("words");
     }
 
-    //@RequestMapping(method = RequestMethod.GET, path = "/hello")
     @GetMapping("/hello")
-    public String sayHello(){
+    public String sayHello() {
         return "Hello from sample app";
     }
 
+    // insert?word=dog
     @GetMapping("/insert")
-    public Object insertWord(@RequestParam String word){
+    public String insertWord(@RequestParam String word) {
 
-        Document appDoc = new Document().append("word", word).append("date", new Date());
+        final Document doc = new Document()
+                .append("word", word)
+                .append("date", new Date());
 
-        words.insertOne(appDoc);
+        words.insertOne(doc);
 
-        return word;
-
+        return "Word inserted: " + word;
     }
 
+    // insert?word=dog
     @GetMapping("/list")
-    public List<Object> listWords(){
+    public List<String> listWords() {
 
-        List<Object> result = new ArrayList<>();
+        final List<String> result = new ArrayList<>();
 
-        for (Document docApp : words.find()){
-            result.add(docApp.get("word"));
+        for (Document doc : words.find()) {
+            result.add(doc.getString("word"));
         }
+
         return result;
     }
 }
